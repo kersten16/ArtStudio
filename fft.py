@@ -6,9 +6,15 @@ from matplotlib import pyplot as plt
 import sounddevice as sd
 import soundfile as sf
 import threading
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities,IAudioEndpointVolume
 
 fs = 44100
 songToPlay=""
+devices = AudioUtilities.GetSpeakers()
+interface = devices.Activate (IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+volume = cast(interface, POINTER(IAudioEndpointVolume))
 
 def _play(sound):
     event =threading.Event()
@@ -35,9 +41,10 @@ def _rec():
     def print_sound(indata, outdata, frames, time, status):
         volume_norm = np.linalg.norm(indata)*10
     ##    can set this to close on button release
-        print ("|" * int(volume_norm))
+        print ('|'*int(volume_norm))
+        volume.SetMasterVolumeLevelScalar(max(.10,float(volume_norm/60)),None)
     with sd.Stream(samplerate = fs ,callback=print_sound):
-        sd.sleep(10000)
+        ##sd.sleep(10000)
 
 def _playsound(sound):
     new_thread = threading.Thread(target=_play, args=(sound,))
