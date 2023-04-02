@@ -4,25 +4,50 @@ import scipy.fftpack as fftpk
 import numpy as np
 from matplotlib import pyplot as plt
 import sounddevice as sd
-import numpy as np
+import soundfile as sf
+import threading
 
 fs = 44100
-##def plotFreq():
-##    
-##    s_rate, signal = wavfile.read("./popSample.wav") 
-##    print (s_rate,signal)
-##    FFT = abs(scipy.fft.fft(signal))
-##    freqs = fftpk.fftfreq(len(FFT), (1.0/s_rate))
-##
-##    plt.plot(freqs[range(len(FFT)//2)], FFT[range(len(FFT)//2)])                                                          
-##    plt.xlabel('Frequency (Hz)')
-##    plt.ylabel('Amplitude')
-##    plt.show()
+songToPlay=""
 
-def print_sound(indata, outdata, frames, time, status):
-    volume_norm = np.linalg.norm(indata)*10
-##    can set this to close on button release
-    print ("|" * int(volume_norm))
+def _play(sound):
+    event =threading.Event()
+
+    def callback(outdata, frames, time, status):
+        data = wf.buffer_read(frames, dtype='float32')
+        if len(outdata) > len(data):
+            outdata[:len(data)] = data
+            outdata[len(data):] = b'\x00' * (len(outdata) - len(data))
+            raise sd.CallbackStop
+        else:
+            outdata[:] = data
+
+    with sf.SoundFile(sound) as wf:
+        stream = sd.RawOutputStream(samplerate=wf.samplerate,
+                                    channels=wf.channels,
+                                    callback=callback,
+                                    blocksize=1024,
+                                    finished_callback=event.set)
+        with stream:
+            event.wait()
+
+def _rec():
+    def print_sound(indata, outdata, frames, time, status):
+        volume_norm = np.linalg.norm(indata)*10
+    ##    can set this to close on button release
+        print ("|" * int(volume_norm))
+    with sd.Stream(samplerate = fs ,callback=print_sound):
+        sd.sleep(10000)
+
+def _playsound(sound):
+    new_thread = threading.Thread(target=_play, args=(sound,))
+    new_thread.start()
+    
+def _recsound():
+    new_thread = threading.Thread(target=_rec)
+    new_thread.start()
+    
+
 
 def getFreq():
     ##can set this to be called on button press
@@ -49,9 +74,19 @@ def getFreq():
 
     HighestAudibleFrequency=max(freqs_side[audible])
     print(HighestAudibleFrequency)
-    
-    with sd.Stream(samplerate = fs ,callback=print_sound):
-        sd.sleep(10000)
+    if HighestAudibleFrequency < 3000:
+        songToPlay="classicalSample.wav"
+    elif (HighestAudibleFrequency >= 3000 and HighestAudibleFrequency<5000):
+        songToPlay="reggaeSample.wav"
+
+    elif (HighestAudibleFrequency >= 5000 and HighestAudibleFrequency<7000):
+        songToPlay="discoSample.wav"
+
+    else:
+        songToPlay="popSample.wav"
+        
+    _playsound(songToPlay)
+    _recsound()
 
 getFreq()
 
