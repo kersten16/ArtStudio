@@ -42,9 +42,9 @@ def _rec():
         volume_norm = np.linalg.norm(indata)*10
     ##    can set this to close on button release
         print ('|'*int(volume_norm))
-        volume.SetMasterVolumeLevelScalar(max(.10,float(volume_norm/60)),None)
+        volume.SetMasterVolumeLevelScalar(max(.10,min(float(volume_norm/60),1)),None)
     with sd.Stream(samplerate = fs ,callback=print_sound):
-        ##sd.sleep(10000)
+        sd.sleep(-1)
 
 def _playsound(sound):
     new_thread = threading.Thread(target=_play, args=(sound,))
@@ -81,12 +81,12 @@ def getFreq():
 
     HighestAudibleFrequency=max(freqs_side[audible])
     print(HighestAudibleFrequency)
-    if HighestAudibleFrequency < 3000:
+    if HighestAudibleFrequency < 20000:
         songToPlay="classicalSample.wav"
-    elif (HighestAudibleFrequency >= 3000 and HighestAudibleFrequency<5000):
+    elif (HighestAudibleFrequency >= 20000 and HighestAudibleFrequency<22000):
         songToPlay="reggaeSample.wav"
 
-    elif (HighestAudibleFrequency >= 5000 and HighestAudibleFrequency<7000):
+    elif (HighestAudibleFrequency >= 22000 and HighestAudibleFrequency<24000):
         songToPlay="discoSample.wav"
 
     else:
