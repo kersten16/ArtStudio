@@ -6,7 +6,10 @@ from pathlib import Path
 import random
 #from pynput import mouse, keyboard
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-
+image_card_1 = None
+image_card_2 = None
+image_card_3 = None
+birdNum=13
 clickNum=0
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"C:/Users/Kersten/Desktop/artStudio/ArtStudio/testArtStudio/build/assets/frame0")
@@ -14,7 +17,14 @@ ASSETS_PATH = OUTPUT_PATH / Path(r"C:/Users/Kersten/Desktop/artStudio/ArtStudio/
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
-
+def on_key(event):
+    global clickNum, birdNum
+    if clickNum >=4:
+        clickNum=0
+        birdNum= birdNum%13 +1
+        pickCards()
+        setPage()
+#sample somewhere here
 def on_click(event):
     global clickNum
     clickNum=clickNum+1
@@ -25,12 +35,19 @@ window = Tk()
 window.geometry("1250x700")
 window.configure(bg = "#FFFFFF")
 #pick random number in 1-0, 1-107
-birdNum = random.randint(1,9)
-otherNums = random.sample(range(1, 108), 2)
+image_image_1 = PhotoImage(
+        file=relative_to_assets("image_1.png"))
+image_image_2 = PhotoImage(
+        file=relative_to_assets("image_2.png"))
 
-image_card_1 = PhotoImage(file=relative_to_assets("Dixit/birds/bird_{0}.png".format(birdNum)))
-image_card_2 = PhotoImage(file=relative_to_assets("Dixit/other_{0}.png".format(otherNums[0])))
-image_card_3 = PhotoImage(file=relative_to_assets("Dixit/other_{0}.png".format(otherNums[1])))
+
+def pickCards():
+    global image_card_1,image_card_2,image_card_3,birdNum
+    otherNums = random.sample(range(1, 97), 2)
+    image_card_1 = PhotoImage(file=relative_to_assets("Dixit/birds/bird_{0}.png".format(birdNum)))
+    image_card_2 = PhotoImage(file=relative_to_assets("Dixit/other_{0}.png".format(otherNums[0])))
+    image_card_3 = PhotoImage(file=relative_to_assets("Dixit/other_{0}.png".format(otherNums[1])))
+
 
 def setPage():
     print(clickNum)
@@ -43,7 +60,7 @@ def setPage():
         highlightthickness = 0,
         relief = "ridge"
     )
-    #canvas.bind("<Key>", key)
+    window.bind("<space>", on_key)
     canvas.bind("<Button-1>", on_click)
 
     canvas.place(x = 0, y = 0)
@@ -51,28 +68,24 @@ def setPage():
         30.0,
         20.0,
         anchor="nw",
-        text="Tell us an interesting story about the content of these images. Every time a new image appears, try to include it as quickly as possible!",
+        text="Tell us a story using the content of these images. Every time a new image appears, try to include it as quickly as possible!",
         fill="#000000",
         font=("Inter", 24 * -1),
         width=1210
     )
-    image_image_1 = PhotoImage(
-        file=relative_to_assets("image_1.png"))
-    image_1 = canvas.create_image(
-        445,
-        300,
-        image=image_image_1
-    )
 
-    image_image_2 = PhotoImage(
-        file=relative_to_assets("image_2.png"))
-    image_2 = canvas.create_image(
-        850,
-        300,
-        image=image_image_2
-    )
     match clickNum:
         case 0:
+            canvas.create_image(
+                445,
+                300,
+                image=image_image_1
+            )
+            canvas.create_image(
+                850,
+                300,
+                image=image_image_2
+            )
             canvas.create_rectangle(
                 75.0,
                 100.0,
@@ -98,8 +111,19 @@ def setPage():
                 outline="")
         case 1:
             canvas.create_image(
+                445,
+                300,
+                image=image_image_1
+            )
+            canvas.create_image(
+                850,
+                300,
+                image=image_image_2
+            )
+            canvas.create_image(
                 75,
                 100,
+                anchor="nw",
                 image=image_card_1
             )
 
@@ -120,13 +144,25 @@ def setPage():
                 outline="")
         case 2:
             canvas.create_image(
+                445,
+                300,
+                image=image_image_1
+            )
+            canvas.create_image(
+                850,
+                300,
+                image=image_image_2
+            )
+            canvas.create_image(
                 75,
                 100,
+                anchor="nw",
                 image=image_card_1
             )
             canvas.create_image(
                 480,
                 100,
+                anchor="nw",
                 image=image_card_2
             )
 
@@ -139,18 +175,31 @@ def setPage():
                 outline="")
         case 3:
             canvas.create_image(
+                445,
+                300,
+                image=image_image_1
+            )
+            canvas.create_image(
+                850,
+                300,
+                image=image_image_2
+            )
+            canvas.create_image(
                 75,
                 100,
+                anchor="nw",
                 image=image_card_1
             )
             canvas.create_image(
                 480,
                 100,
+                anchor="nw",
                 image=image_card_2
             )
             canvas.create_image(
                 885,
                 100,
+                anchor="nw",
                 image=image_card_3
             )
         case 4:
@@ -163,11 +212,10 @@ def setPage():
                 font=("Inter", 36 * -1),
                 width=1210
             )
-            
-
-        
+             
     canvas.pack
 
+pickCards()
 setPage()
 window.resizable(True, True)
 window.mainloop()
