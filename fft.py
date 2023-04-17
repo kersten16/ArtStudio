@@ -81,12 +81,12 @@ def getFreq():
 
     HighestAudibleFrequency=max(freqs_side[audible])
     print(HighestAudibleFrequency)
-    if HighestAudibleFrequency < 20000:
+    if HighestAudibleFrequency < 6000:
         songToPlay="classicalSample.wav"
-    elif (HighestAudibleFrequency >= 20000 and HighestAudibleFrequency<22000):
+    elif (HighestAudibleFrequency >= 6000 and HighestAudibleFrequency<8000):
         songToPlay="reggaeSample.wav"
 
-    elif (HighestAudibleFrequency >= 22000 and HighestAudibleFrequency<24000):
+    elif (HighestAudibleFrequency >= 8000 and HighestAudibleFrequency<10000):
         songToPlay="discoSample.wav"
 
     else:
