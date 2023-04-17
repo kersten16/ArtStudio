@@ -11,7 +11,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"/home/julien/Documents/M1/ArtStudio/build/assets/frame0")
+ASSETS_PATH = OUTPUT_PATH / Path(r"/home/julien/Documents/M1/ArtStudio/testArtStudio/build/assets/frame0")
 
 
 def relative_to_assets(path: str) -> Path:
@@ -67,5 +67,21 @@ canvas.create_rectangle(
     904.0,
     fill="#D9D9D9",
     outline="")
+
+image_image_1 = PhotoImage(
+    file=relative_to_assets("image_1.png"))
+image_1 = canvas.create_image(
+    958.0,
+    547.0,
+    image=image_image_1
+)
+
+image_image_2 = PhotoImage(
+    file=relative_to_assets("image_2.png"))
+image_2 = canvas.create_image(
+    498.0,
+    547.0,
+    image=image_image_2
+)
 window.resizable(False, False)
 window.mainloop()
