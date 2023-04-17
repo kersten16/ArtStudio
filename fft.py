@@ -8,8 +8,8 @@ import soundfile as sf
 import threading
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
-from pycaw.pycaw import AudioUtilities,IAudioEndpointVolume
-#import obspython as obs
+from pycaw.pycaw import AudioUtilities,IAudioEndpointVolume, ISimpleAudioVolume
+# import obspython as obs
 
 # if it doesn't work, put that every time we update the volume
 # scenesource = obs.obs_frontend_get_current_scene()
@@ -24,11 +24,12 @@ fs = 44100
 songToPlay=""
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate (IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-volume = cast(interface, POINTER(IAudioEndpointVolume))
+volume=None
+#volume = cast(interface, POINTER(IAudioEndpointVolume))
 
 def _play(sound):
     event =threading.Event()
-
+    global volume
     def callback(outdata, frames, time, status):
         data = wf.buffer_read(frames, dtype='float32')
         if len(outdata) > len(data):
@@ -44,6 +45,12 @@ def _play(sound):
                                     callback=callback,
                                     blocksize=1024,
                                     finished_callback=event.set)
+        sessions = AudioUtilities.GetAllSessions()
+        for session in sessions:
+            if session.Process and session.Process.name() == "python.exe":
+                volume=session._ctl.QueryInterface(ISimpleAudioVolume)
+                print(session.Process.name())
+                break
         with stream:
             event.wait()
 
@@ -52,7 +59,8 @@ def _rec():
         volume_norm = np.linalg.norm(indata)*10
     ##    can set this to close on button release
         print ('|'*int(volume_norm))
-        volume.SetMasterVolumeLevelScalar(max(.10,min(float(volume_norm/60),1)),None)
+        #volume.SetMasterVolumeLevelScalar(max(.10,min(float(volume_norm/60),1)),None)
+        volume.SetMasterVolume(max(.10,min(float(volume_norm/60),1)),None)
         # obs.obs_source_set_volume(source,max(.10,min(float(volume_norm/60),1)))
     with sd.Stream(samplerate = fs ,callback=print_sound):
         sd.sleep(-1)
