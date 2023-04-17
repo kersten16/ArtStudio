@@ -11,7 +11,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"/home/julien/Documents/M1/ArtStudio/Tkinter-Designer/gui/testArtStudio/build/assets/frame0")
+ASSETS_PATH = OUTPUT_PATH / Path(r"/home/julien/Documents/M1/ArtStudio/build/assets/frame0")
 
 
 def relative_to_assets(path: str) -> Path:
@@ -35,22 +35,6 @@ canvas = Canvas(
 )
 
 canvas.place(x = 0, y = 0)
-canvas.create_rectangle(
-    912.0,
-    189.0,
-    1365.0,
-    904.0,
-    fill="#000000",
-    outline="")
-
-canvas.create_rectangle(
-    459.0,
-    189.0,
-    912.0,
-    904.0,
-    fill="#000000",
-    outline="")
-
 canvas.create_text(
     219.0,
     20.0,
@@ -64,6 +48,22 @@ canvas.create_rectangle(
     74.0,
     189.0,
     459.0,
+    904.0,
+    fill="#D9D9D9",
+    outline="")
+
+canvas.create_rectangle(
+    998.0,
+    189.0,
+    1383.0,
+    904.0,
+    fill="#D9D9D9",
+    outline="")
+
+canvas.create_rectangle(
+    536.0,
+    189.0,
+    921.0,
     904.0,
     fill="#D9D9D9",
     outline="")
