@@ -20,7 +20,7 @@ def relative_to_assets(path: str) -> Path:
 
 window = Tk()
 
-window.geometry("1440x1024")
+window.geometry("1200x800")
 window.configure(bg = "#FFFFFF")
 
 
@@ -36,7 +36,7 @@ canvas = Canvas(
 
 canvas.place(x = 0, y = 0)
 canvas.create_text(
-    219.0,
+    20.0,
     20.0,
     anchor="nw",
     text="Tell us an interesting story about the content of these images. Every time a new image appears, try to include it as quickly as possible!",
