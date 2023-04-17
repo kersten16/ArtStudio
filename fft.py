@@ -9,6 +9,16 @@ import threading
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities,IAudioEndpointVolume
+import obspython as obs
+
+# if it doesn't work, put that every time we update the volume
+scenesource = obs.obs_frontend_get_current_scene()
+scene = obs.obs_scene_from_source(scenesource)
+#obs.script_log(obs.LOG_DEBUG,"Scene "+str(scene))
+sceneitem = obs.obs_scene_find_source(scene,sourcename)
+#obs.script_log(obs.LOG_DEBUG,"Scene item "+str(sceneitem))
+source = obs.obs_sceneitem_get_source(sceneitem)
+
 
 fs = 44100
 songToPlay=""
@@ -43,6 +53,7 @@ def _rec():
     ##    can set this to close on button release
         print ('|'*int(volume_norm))
         volume.SetMasterVolumeLevelScalar(max(.10,min(float(volume_norm/60),1)),None)
+        obs.obs_source_set_volume(source,max(.10,min(float(volume_norm/60),1)))
     with sd.Stream(samplerate = fs ,callback=print_sound):
         sd.sleep(-1)
 
