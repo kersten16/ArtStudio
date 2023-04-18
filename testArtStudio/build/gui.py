@@ -5,6 +5,7 @@
 from pathlib import Path
 import random
 #from pynput import mouse, keyboard
+import fft 
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 image_card_1 = None
 image_card_2 = None
@@ -24,11 +25,19 @@ def on_key(event):
         birdNum= birdNum%13 +1
         pickCards()
         setPage()
+    fft.notStopped=False
+    fft.cutStreams()
 #sample somewhere here
 def on_click(event):
     global clickNum
+    if clickNum > 0:
+        fft.notStopped=False
     clickNum=clickNum+1
     setPage()
+    if clickNum < 4:
+        fft.getFreq()
+    else:
+        fft.cutStreams()
 
 
 window = Tk()

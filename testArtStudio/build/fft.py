@@ -18,7 +18,8 @@ from pycaw.pycaw import AudioUtilities,IAudioEndpointVolume, ISimpleAudioVolume
 # sceneitem = obs.obs_scene_find_source(scene,sourcename)
 # #obs.script_log(obs.LOG_DEBUG,"Scene item "+str(sceneitem))
 # source = obs.obs_sceneitem_get_source(sceneitem)
-
+streamout = None
+streamin = None
 notStopped=True
 fs = 44100
 songToPlay=""
@@ -29,7 +30,7 @@ volume=None
 
 def _play(sound):
     event =threading.Event()
-    global volume
+    global volume, streamout
     def callback(outdata, frames, time, status):
         data = wf.buffer_read(frames, dtype='float32')
         if len(outdata) > len(data):
@@ -40,7 +41,7 @@ def _play(sound):
             outdata[:] = data
 
     with sf.SoundFile(sound) as wf:
-        stream = sd.RawOutputStream(samplerate=wf.samplerate,
+        streamout = sd.RawOutputStream(samplerate=wf.samplerate,
                                     channels=wf.channels,
                                     callback=callback,
                                     blocksize=1024,
@@ -51,21 +52,25 @@ def _play(sound):
                 volume=session._ctl.QueryInterface(ISimpleAudioVolume)
                 print(session.Process.name())
                 break
-        with stream:
+        with streamout:
             event.wait()
             if notStopped:
                 _play(sound)
 
 def _rec():
     def print_sound(indata, outdata, frames, time, status):
+        global streamin
         volume_norm = np.linalg.norm(indata)*10
     ##    can set this to close on button release
-        print ('|'*int(volume_norm))
+        # print ('|'*int(volume_norm))
         #volume.SetMasterVolumeLevelScalar(max(.10,min(float(volume_norm/60),1)),None)
         volume.SetMasterVolume(max(.10,min(float(volume_norm/60),1)),None)
         # obs.obs_source_set_volume(source,max(.10,min(float(volume_norm/60),1)))
-    with sd.Stream(samplerate = fs ,callback=print_sound):
-        sd.sleep(-1)
+        streamin=sd.Stream(samplerate = fs ,callback=print_sound)
+        with streamin:
+            if notStopped:
+                streamin.sleep(-1)
+        
 
 def _playsound(sound):
     new_thread = threading.Thread(target=_play, args=(sound,))
@@ -78,6 +83,7 @@ def _recsound():
 
 
 def getFreq():
+    global notStopped
     ##can set this to be called on button press
     seconds = 2
     myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1)
@@ -103,27 +109,33 @@ def getFreq():
     HighestAudibleFrequency=max(freqs_side[audible])
     print(HighestAudibleFrequency)
     if HighestAudibleFrequency < 3000:
-        songToPlay="sing_3.wav"
+        songToPlay="sounds/sing_3.wav"
     elif (HighestAudibleFrequency >= 3000 and HighestAudibleFrequency<4500):
-        songToPlay="shout.wav"
+        songToPlay="sounds/shout.mp3"
 
     elif (HighestAudibleFrequency >= 4500 and HighestAudibleFrequency<6000):
-        songToPlay="sing.wav"
+        songToPlay="sounds/sing.mp3"
 
     elif (HighestAudibleFrequency >= 4500 and HighestAudibleFrequency<6000):
-        songToPlay="sing_5.wav"
+        songToPlay="sounds/sing_5.wav"
 
     elif (HighestAudibleFrequency >= 8000 and HighestAudibleFrequency<10000):
-        songToPlay="alarm.wav"
+        songToPlay="sounds/alarm.mp3"
 
     elif (HighestAudibleFrequency >= 10000 and HighestAudibleFrequency<12000):
-        songToPlay="sing_4.wav"
+        songToPlay="sounds/sing_4.wav"
 
     else:
-        songToPlay="sing_2.wav"
-        
+        songToPlay="sounds/sing_2.wav"
+    cutStreams()
     _playsound(songToPlay)
     _recsound()
 
-getFreq()
+def cutStreams():
+    global notStopped
+    if not notStopped:
+        streamout.close()
+        #streamin.close()
+    notStopped=True
+#getFreq()
 
