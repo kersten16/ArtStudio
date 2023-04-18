@@ -19,7 +19,7 @@ from pycaw.pycaw import AudioUtilities,IAudioEndpointVolume, ISimpleAudioVolume
 # #obs.script_log(obs.LOG_DEBUG,"Scene item "+str(sceneitem))
 # source = obs.obs_sceneitem_get_source(sceneitem)
 
-
+notStopped=True
 fs = 44100
 songToPlay=""
 devices = AudioUtilities.GetSpeakers()
@@ -53,6 +53,8 @@ def _play(sound):
                 break
         with stream:
             event.wait()
+            if notStopped:
+                _play(sound)
 
 def _rec():
     def print_sound(indata, outdata, frames, time, status):
@@ -77,7 +79,7 @@ def _recsound():
 
 def getFreq():
     ##can set this to be called on button press
-    seconds = 3
+    seconds = 2
     myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1)
     sd.wait()  
     wavfile.write('output.wav', fs, myrecording)   
@@ -101,7 +103,7 @@ def getFreq():
     HighestAudibleFrequency=max(freqs_side[audible])
     print(HighestAudibleFrequency)
     if HighestAudibleFrequency < 3000:
-        songToPlay="song_3.wav"
+        songToPlay="sing_3.wav"
     elif (HighestAudibleFrequency >= 3000 and HighestAudibleFrequency<4500):
         songToPlay="shout.wav"
 
@@ -109,16 +111,16 @@ def getFreq():
         songToPlay="sing.wav"
 
     elif (HighestAudibleFrequency >= 4500 and HighestAudibleFrequency<6000):
-        songToPlay="song_5.wav"
+        songToPlay="sing_5.wav"
 
     elif (HighestAudibleFrequency >= 8000 and HighestAudibleFrequency<10000):
         songToPlay="alarm.wav"
 
     elif (HighestAudibleFrequency >= 10000 and HighestAudibleFrequency<12000):
-        songToPlay="song_4.wav"
+        songToPlay="sing_4.wav"
 
     else:
-        songToPlay="song_2.wav"
+        songToPlay="sing_2.wav"
         
     _playsound(songToPlay)
     _recsound()
